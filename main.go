@@ -51,6 +51,7 @@ func NewRollbackController(c client.Client, log logr.Logger, token, projectID, b
 // before re-checking (0 = no requeue needed).
 func (r *RollbackController) handleResource(kind, name, namespace, sha string, ready bool) time.Duration {
 	if sha == "" {
+		r.log.Warn("Cannot create revert without sha", "kind", kind, "namespace", namespace, "name", name, "debounceSeconds", r.DebounceSeconds, "sha", sha)
 		return 0
 	}
 	if !ready {
