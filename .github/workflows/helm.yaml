@@ -1,9 +1,13 @@
 name: Helm Lint, Package, Push
 
+permissions:
+  contents: read
+  packages: write
+
 on: 
   push: 
-    paths: 
-    - 'test/charts/my-app'
+#    paths: 
+#    - 'test/charts/my-app'
     
 jobs:
   build:
