@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl cluster-info:*)",
+      "Bash(go build:*)",
+      "Bash(go list:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl patch:*)",
+      "Bash(REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 GITLAB_URL=https://gitlab.example.com timeout 60 ./revert-controller)",
+      "Bash(go mod tidy:*)",
+      "Bash(REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 GITLAB_URL=https://gitlab.example.com timeout 50 ./revert-controller)",
+      "Bash(kubectl delete:*)"
+    ]
+  }
+}

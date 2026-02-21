@@ -1,0 +1,17 @@
+apiVersion: toolkit.fluxcd.io/v1alpha1
+kind: RollbackPolicy
+metadata:
+  name: flux-revert-policy
+  namespace: flux-system
+spec:
+  targets:
+    - kind: Kustomization
+      name: myapp
+      namespace: default
+    - kind: HelmRelease
+      name: mychart
+      namespace: default
+  debounceSeconds: 300
+  gitlabProjectID: 123
+  gitlabTokenSecret: gitlab-token
+  revertBranchPrefix: revert

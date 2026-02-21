@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flux-rollback-agent
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flux-rollback-agent
+  template:
+    metadata:
+      labels:
+        app: flux-rollback-agent
+    spec:
+      serviceAccountName: flux-rollback-agent
+      containers:
+        - name: agent
+          image: yourrepo/flux-rollback-agent:latest
+          env:
+            - name: KUBECONFIG
+              value: /etc/kube/config
+            - name: GITLAB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: gitlab-token
+                  key: token
+            - name: GITLAB_PROJECT_ID
+              value: "123"
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/kube
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: kubeconfig
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: flux-rollback-agent
+  namespace: flux-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: flux-rollback-agent
+  namespace: flux-system
+rules:
+  - apiGroups: ["helm.toolkit.fluxcd.io"]
+    resources: ["helmreleases"]
+    verbs: ["get","list","watch"]
+  - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+    resources: ["kustomizations"]
+    verbs: ["get","list","watch"]
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources: ["gitrepositories"]
+    verbs: ["get","list","watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: flux-rollback-agent
+  namespace: flux-system
+subjects:
+  - kind: ServiceAccount
+    name: flux-rollback-agent
+roleRef:
+  kind: Role
+  name: flux-rollback-agent
+  apiGroup: rbac.authorization.k8s.io

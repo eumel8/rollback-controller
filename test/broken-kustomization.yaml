@@ -1,0 +1,24 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: test-repo
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/fluxcd/flux2-kustomize-helm-example
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: test-broken
+  namespace: flux-system
+spec:
+  interval: 1m
+  sourceRef:
+    kind: GitRepository
+    name: test-repo
+  path: ./this-path-does-not-exist
+  prune: true
