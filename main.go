@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-logr/logr"
+
 	helmv2 "github.com/fluxcd/helm-controller/api/v2"
 	kustomizev1 "github.com/fluxcd/kustomize-controller/api/v1"
 
@@ -21,6 +23,7 @@ import (
 
 type RollbackController struct {
 	client.Client
+	log                logr.Logger
 	GitlabToken        string
 	GitlabProjectID    string
 	GitlabBaseURL      string
@@ -30,9 +33,10 @@ type RollbackController struct {
 	completedSHAs      map[string]bool      // SHAs that already triggered a revert
 }
 
-func NewRollbackController(c client.Client, token, projectID, baseURL, branchPrefix string, debounce int) *RollbackController {
+func NewRollbackController(c client.Client, log logr.Logger, token, projectID, baseURL, branchPrefix string, debounce int) *RollbackController {
 	return &RollbackController{
 		Client:             c,
+		log:                log,
 		GitlabToken:        token,
 		GitlabProjectID:    projectID,
 		GitlabBaseURL:      baseURL,
@@ -57,8 +61,7 @@ func (r *RollbackController) handleResource(kind, name, namespace, sha string, r
 			elapsed := time.Since(t)
 			debounce := time.Duration(r.DebounceSeconds) * time.Second
 			if elapsed >= debounce {
-				fmt.Printf("[%s/%s/%s] Failure stable for %ds. Creating revert for SHA %s\n",
-					kind, namespace, name, r.DebounceSeconds, sha)
+				r.log.Info("Failure stable, creating revert", "kind", kind, "namespace", namespace, "name", name, "debounceSeconds", r.DebounceSeconds, "sha", sha)
 				r.createGitlabRevertMR(sha)
 				r.completedSHAs[sha] = true
 				delete(r.pendingSHAs, sha)
@@ -67,8 +70,7 @@ func (r *RollbackController) handleResource(kind, name, namespace, sha string, r
 			// Still within debounce window — requeue when it expires.
 			return debounce - elapsed
 		}
-		fmt.Printf("[%s/%s/%s] Failure detected for SHA %s, will revert after %ds debounce\n",
-			kind, namespace, name, sha, r.DebounceSeconds)
+		r.log.Info("Failure detected", "kind", kind, "namespace", namespace, "name", name, "sha", sha, "debounceSeconds", r.DebounceSeconds)
 		r.pendingSHAs[sha] = time.Now()
 		return time.Duration(r.DebounceSeconds) * time.Second
 	}
@@ -79,17 +81,16 @@ func (r *RollbackController) handleResource(kind, name, namespace, sha string, r
 
 func (r *RollbackController) createGitlabRevertMR(badSHA string) {
 	branch := fmt.Sprintf("%s-%s", r.RevertBranchPrefix, badSHA)
-	if os.Getenv("REVERT_MODE") == "echo" {
-		fmt.Printf("[ECHO] Would POST %s/api/v4/projects/%s/repository/commits/%s/revert -> branch: %s\n",
-			r.GitlabBaseURL, r.GitlabProjectID, badSHA, branch)
-		return
-	}
 	url := fmt.Sprintf("%s/api/v4/projects/%s/repository/commits/%s/revert",
 		r.GitlabBaseURL, r.GitlabProjectID, badSHA)
+	if os.Getenv("REVERT_MODE") == "echo" {
+		r.log.Info("ECHO: would POST revert", "url", url, "branch", branch)
+		return
+	}
 	data := fmt.Sprintf(`{"branch":"%s"}`, branch)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(data)))
 	if err != nil {
-		fmt.Println("Failed to create request:", err)
+		r.log.Error(err, "failed to create request")
 		return
 	}
 	req.Header.Set("PRIVATE-TOKEN", r.GitlabToken)
@@ -98,15 +99,15 @@ func (r *RollbackController) createGitlabRevertMR(badSHA string) {
 	httpClient := &http.Client{Timeout: 10 * time.Second}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		fmt.Println("GitLab Revert failed:", err)
+		r.log.Error(err, "GitLab revert failed")
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		fmt.Println("Revert commit created successfully for", badSHA)
+		r.log.Info("Revert commit created successfully", "sha", badSHA)
 	} else {
-		fmt.Println("GitLab API returned", resp.Status)
+		r.log.Error(nil, "GitLab API error", "status", resp.Status, "sha", badSHA)
 	}
 }
 
@@ -142,7 +143,8 @@ func main() {
 		}
 	}
 
-	rollback := NewRollbackController(mgr.GetClient(), token, projectID, baseURL, branchPrefix, debounce)
+	log := ctrl.Log.WithName("rollback-controller")
+	rollback := NewRollbackController(mgr.GetClient(), log, token, projectID, baseURL, branchPrefix, debounce)
 
 	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&kustomizev1.Kustomization{}).
@@ -151,7 +153,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Starting Rollback Controller...")
+	log.Info("Starting Rollback Controller")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
 		panic(err)
 	}
