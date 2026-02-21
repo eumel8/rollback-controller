@@ -3,7 +3,17 @@ entries:
   my-app:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-02-21T19:16:36.462398837+01:00"
+    created: "2026-02-21T21:28:57.33599552+01:00"
+    description: A Helm chart for Kubernetes
+    digest: 6a7bcb5d6c8aff60f9907dd9ad567e1aa254f42c65d9ccd932110d70a5793cd8
+    name: my-app
+    type: application
+    urls:
+    - https://eumel8.github.io/rollback-controller/test/charts/publish/my-app-0.0.4.tgz
+    version: 0.0.4
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-02-21T21:28:57.335760727+01:00"
     description: A Helm chart for Kubernetes
     digest: e043905ba2b8275cc069e0c1e42191ae38634367262a8d7b59e5ee87e0a7757e
     name: my-app
@@ -13,7 +23,7 @@ entries:
     version: 0.0.3
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-02-21T19:16:36.462226406+01:00"
+    created: "2026-02-21T21:28:57.335268965+01:00"
     description: A Helm chart for Kubernetes
     digest: 666632ec9b29d9036e0028244fb9239788c39716d1c6c0cb72a4c51d6b9caed6
     name: my-app
@@ -23,7 +33,7 @@ entries:
     version: 0.0.2
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-02-21T19:16:36.462069094+01:00"
+    created: "2026-02-21T21:28:57.334747067+01:00"
     description: A Helm chart for Kubernetes
     digest: d899c47378e67e82f92910d588af9d0ee48f0a4306b7b41a2a682ee1f2e43814
     name: my-app
@@ -31,4 +41,4 @@ entries:
     urls:
     - https://eumel8.github.io/rollback-controller/test/charts/publish/my-app-0.0.1.tgz
     version: 0.0.1
-generated: "2026-02-21T19:16:36.461688491+01:00"
+generated: "2026-02-21T21:28:57.327805513+01:00"
