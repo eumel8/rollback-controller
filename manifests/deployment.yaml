@@ -13,27 +13,45 @@ spec:
       labels:
         app: flux-rollback-agent
     spec:
+      securityContext:
+        fsGroup: 10001
+        runAsNonRoot: true
+        supplementalGroups:
+        - 10001
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: flux-rollback-agent
       containers:
         - name: agent
           image: ghcr.io/eumel8/rollback-controller:latest
           env:
-            - name: KUBECONFIG
-              value: /etc/kube/config
+            - name: REVERT_MODE
+              value: "echo"
+            - name: DEBOUNCE_SECONDS
+              value: "10"
             - name: GITLAB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: gitlab-token
-                  key: token
+              value: "123"
             - name: GITLAB_PROJECT_ID
               value: "123"
-          volumeMounts:
-            - name: kubeconfig
-              mountPath: /etc/kube
-      volumes:
-        - name: kubeconfig
-          configMap:
-            name: kubeconfig
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 10m
+              memory: 24Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+              - CAP_NET_RAW
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -42,10 +60,9 @@ metadata:
   namespace: flux-system
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   name: flux-rollback-agent
-  namespace: flux-system
 rules:
   - apiGroups: ["helm.toolkit.fluxcd.io"]
     resources: ["helmreleases"]
@@ -58,14 +75,14 @@ rules:
     verbs: ["get","list","watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   name: flux-rollback-agent
-  namespace: flux-system
 subjects:
   - kind: ServiceAccount
     name: flux-rollback-agent
+    namespace: flux-system
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: flux-rollback-agent
   apiGroup: rbac.authorization.k8s.io

@@ -1,24 +1,25 @@
----
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: test-repo
+  name: my-app
   namespace: flux-system
 spec:
-  interval: 1m
-  url: https://github.com/fluxcd/flux2-kustomize-helm-example
+  interval: 5m
+  url: https://github.com/eumel8/rollback-controller
   ref:
     branch: main
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: test-broken
+  name: my-app
   namespace: flux-system
 spec:
   interval: 1m
+  targetNamespace: flux-system
   sourceRef:
     kind: GitRepository
-    name: test-repo
-  path: ./this-path-does-not-exist
+    name: my-app
+  path: "./test/kustomize"
   prune: true
+  timeout: 1m

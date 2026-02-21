@@ -76,7 +76,7 @@ RBAC permissions (defined in `manifests/deployment.yaml`) grant read access to `
 
 ## End-to-End Test
 
-build helm package
+### build helm package
 
 ```
 cd test/charts/publish
@@ -84,30 +84,20 @@ helm package ../my-app
 helm repo index --url https://eumel8.github.io/rollback-controller/test/charts/publish .
 ```
 
-The `test/broken-kustomization.yaml` fixture creates a `GitRepository` and a `Kustomization` pointing to an invalid path, which causes Flux to set `Ready=False`.
+Install nginx deployment named `my-app` with Kustomize or Helmrelease. There are tags or commits which are broken
 
 ```bash
-kubectl apply -f test/broken-kustomization.yaml
-
-# Wait for GitRepository to become ready (~30s), then inject the revision:
-kubectl patch kustomization test-broken -n flux-system \
-  --subresource=status --type=merge \
-  -p '{"status":{"lastAttemptedRevision":"main@sha1:<sha>","observedGeneration":1}}'
-
-# Run with short debounce and echo mode:
-REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 \
-  GITLAB_URL=https://gitlab.example.com ./rollback-controller
-
-# Clean up:
-kubectl delete -f test/broken-kustomization.yaml
+kubectl apply -f manifest/rollback.yaml
+kubectl apply -f test/helmrelease.yaml
+kubectl apply -f test/kustomization.yaml
 ```
 
-Expected output after the debounce window:
+### Clean up:
 
-```
-[Kustomization/flux-system/test-broken] Failure detected for SHA ..., will revert after 15s debounce
-[Kustomization/flux-system/test-broken] Failure stable for 15s. Creating revert for SHA ...
-[ECHO] Would POST .../commits/<sha>/revert -> branch: revert-<sha>
+```bash
+kubectl apply -f manifest/rollback.yaml
+kubectl delete -f test/helmrelease.yaml
+kubectl delete -f test/kustomization.yaml
 ```
 
 ## Architecture

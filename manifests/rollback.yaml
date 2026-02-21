@@ -6,11 +6,11 @@ metadata:
 spec:
   targets:
     - kind: Kustomization
-      name: myapp
-      namespace: default
+      name: my-app
+      namespace: flux-system
     - kind: HelmRelease
-      name: mychart
-      namespace: default
+      name: my-app
+      namespace: flux-system
   debounceSeconds: 300
   gitlabProjectID: 123
   gitlabTokenSecret: gitlab-token
