@@ -1,17 +1,26 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-app
+spec:
+  finalizers:
+  - kubernetes
+---
 apiVersion: toolkit.fluxcd.io/v1alpha1
 kind: RollbackPolicy
 metadata:
   name: flux-revert-policy
-  namespace: flux-system
+  namespace: my-app
 spec:
   targets:
     - kind: Kustomization
       name: my-app
-      namespace: flux-system
+      namespace: my-app
     - kind: HelmRelease
       name: my-app
-      namespace: flux-system
-  debounceSeconds: 300
+      namespace: my-app
+  debounceSeconds: 30
   gitlabProjectID: 123
   gitlabTokenSecret: gitlab-token
   revertBranchPrefix: revert

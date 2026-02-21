@@ -61,20 +61,19 @@ kubectl apply -f crds/rollbackpolicy.yaml
 kubectl apply -f manifests/deployment.yaml
 ```
 
-Before applying, update the image reference in `manifests/deployment.yaml`:
-
-```yaml
-image: yourrepo/flux-rollback-agent:latest  # replace with your registry path
-```
-
 The controller runs in the `flux-system` namespace as the `flux-rollback-agent` service account and requires:
 
 - A `gitlab-token` Secret with a `token` key containing your GitLab API token
-- A `kubeconfig` ConfigMap with cluster access (when running outside the cluster)
 
-RBAC permissions (defined in `manifests/deployment.yaml`) grant read access to `kustomizations`, `helmreleases`, and `gitrepositories` in `flux-system`.
+RBAC permissions (defined in `manifests/deployment.yaml`) grant read access to `kustomizations`, `helmreleases`, and `gitrepositories` in cluster level.
 
 ## End-to-End Test
+
+### install FLux
+
+```bash
+kubectl apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
+```
 
 ### build helm package
 

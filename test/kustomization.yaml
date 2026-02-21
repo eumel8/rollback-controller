@@ -1,25 +1,41 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-app
+spec:
+  finalizers:
+  - kubernetes
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
   name: my-app
-  namespace: flux-system
+  namespace: my-app
 spec:
-  interval: 5m
+  interval: 2m
   url: https://github.com/eumel8/rollback-controller
   ref:
-    branch: main
+#    commit: 16bd42fa1b43aa0d3968619bf34d348d56702751 # ok
+    commit: 838d357b33a16d7efe4ad42a813fa2134d5da581 # broken
+#    branch: main
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
   name: my-app
-  namespace: flux-system
+  namespace: my-app
 spec:
   interval: 1m
-  targetNamespace: flux-system
+  targetNamespace: my-app
   sourceRef:
     kind: GitRepository
     name: my-app
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: my-app-kustomize
+      namespace: my-app
   path: "./test/kustomize"
   prune: true
   timeout: 1m

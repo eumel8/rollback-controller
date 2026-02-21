@@ -1,9 +1,17 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-app
+spec:
+  finalizers:
+  - kubernetes
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
   name: my-app
-  namespace: flux-system
+  namespace: my-app
 spec:
   interval: 5m
   url: https://eumel8.github.io/rollback-controller/test/charts/publish
@@ -12,32 +20,33 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: my-app
-  namespace: flux-system
+  namespace: my-app
 spec:
-  interval: 15m
-  timeout: 5m
+  interval: 2m
+  timeout: 1m
   chart:
     spec:
       chart: my-app
-      version: '0.0.*'
+      version: '0.0.3' # broken
+      #version: '0.0.4' # ok
       sourceRef:
         kind: HelmRepository
         name: my-app
       interval: 1m
   releaseName: my-app
   install:
+    timeout: 1m
     remediation:
-      retries: 3
+      retries: 1
   upgrade:
+    timeout: 1m
     remediation:
-      retries: 3
+      retries: 1
   test:
-    enable: true
+    enable: false
   driftDetection:
     mode: enabled
     ignore:
     - paths: ["/spec/replicas"]
       target:
         kind: Deployment
-  values:
-    replicaCount: 2
