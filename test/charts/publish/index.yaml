@@ -3,12 +3,12 @@ entries:
   my-app:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2026-02-21T18:59:56.907693165+01:00"
+    created: "2026-02-21T19:02:22.880194396+01:00"
     description: A Helm chart for Kubernetes
     digest: d899c47378e67e82f92910d588af9d0ee48f0a4306b7b41a2a682ee1f2e43814
     name: my-app
     type: application
     urls:
-    - https://eumel8.github.io/rollback-controller/my-app-0.0.1.tgz
+    - https://eumel8.github.io/rollback-controller/test/charts/publish/my-app-0.0.1.tgz
     version: 0.0.1
-generated: "2026-02-21T18:59:56.907418938+01:00"
+generated: "2026-02-21T19:02:22.879681106+01:00"
