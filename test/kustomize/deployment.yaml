@@ -24,7 +24,7 @@ spec:
         app: my-app
     spec:
       containers:
-      - image: nginx:2.14.2
+      - image: nginx:1.14.2
         imagePullPolicy: IfNotPresent
         name: nginx
         ports:

@@ -24,6 +24,7 @@ spec:
       containers:
         - name: agent
           image: ghcr.io/eumel8/rollback-controller:latest
+          imagePullPolicy: Always
           env:
             - name: REVERT_MODE
               value: "echo"
