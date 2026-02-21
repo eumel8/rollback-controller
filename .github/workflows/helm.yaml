@@ -1,0 +1,22 @@
+name: Helm Lint, Package, Push
+
+on: 
+  push: 
+    paths: 
+    - 'test/charts/my-app'
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Helm lint & package & push
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          helm version
+          helm registry login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+          cd test/charts/my-app
+          helm lint chart
+          helm package chart
+          helm push $(ls *.tgz| head -1) oci://ghcr.io/${{ github.actor }}/charts
