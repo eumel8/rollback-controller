@@ -1,6 +1,8 @@
 name: Build Docker Container (template)
 permissions:
+  attestations: write
   contents: read
+  id-token: write
   packages: write
 
 on:
