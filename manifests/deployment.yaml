@@ -16,7 +16,7 @@ spec:
       serviceAccountName: flux-rollback-agent
       containers:
         - name: agent
-          image: yourrepo/flux-rollback-agent:latest
+          image: ghcr.io/eumel8/rollback-controller:latest
           env:
             - name: KUBECONFIG
               value: /etc/kube/config

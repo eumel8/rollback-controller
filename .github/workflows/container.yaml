@@ -1,0 +1,11 @@
+name: Build Docker Container (template)
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+
+jobs:
+  call-workflow:
+    uses: eumel8/workflow-templates/.github/workflows/container.yaml@0.0.10

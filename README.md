@@ -23,7 +23,7 @@ The `revertedSHAs` map (in-memory, not persisted) ensures each failing SHA trigg
 ## Build
 
 ```bash
-go build -o revert-controller .
+go build -o rollback-controller .
 ```
 
 ## Configuration
@@ -42,14 +42,14 @@ All configuration is via environment variables:
 ## Running Locally
 
 ```bash
-GITLAB_TOKEN=<token> GITLAB_PROJECT_ID=<id> ./revert-controller
+GITLAB_TOKEN=<token> GITLAB_PROJECT_ID=<id> ./rollback-controller
 ```
 
 Dry-run mode (prints what would be POSTed instead of calling GitLab):
 
 ```bash
 REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 \
-  GITLAB_URL=https://gitlab.example.com ./revert-controller
+  GITLAB_URL=https://gitlab.example.com ./rollback-controller
 ```
 
 ## Deployment
@@ -88,7 +88,7 @@ kubectl patch kustomization test-broken -n flux-system \
 
 # Run with short debounce and echo mode:
 REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 \
-  GITLAB_URL=https://gitlab.example.com ./revert-controller
+  GITLAB_URL=https://gitlab.example.com ./rollback-controller
 
 # Clean up:
 kubectl delete -f test/broken-kustomization.yaml

@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build the binary
-go build -o revert-controller .
+go build -o rollback-controller .
 
 # Format code and tidy deps
 gofmt -w . && go mod tidy
 
 # Run locally (requires kubeconfig and env vars)
-GITLAB_TOKEN=<token> GITLAB_PROJECT_ID=<id> ./revert-controller
+GITLAB_TOKEN=<token> GITLAB_PROJECT_ID=<id> ./rollback-controller
 ```
 
 Required environment variables at runtime:
@@ -39,7 +39,7 @@ kubectl patch kustomization test-broken -n flux-system \
 
 # Run controller with short debounce and echo mode:
 REVERT_MODE=echo DEBOUNCE_SECONDS=15 GITLAB_PROJECT_ID=42 \
-  GITLAB_URL=https://gitlab.example.com ./revert-controller
+  GITLAB_URL=https://gitlab.example.com ./rollback-controller
 
 # Expected output (after ~15s):
 # [Kustomization/flux-system/test-broken] Failure detected for SHA ..., will revert after 15s debounce
