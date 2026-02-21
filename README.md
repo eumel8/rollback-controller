@@ -76,6 +76,14 @@ RBAC permissions (defined in `manifests/deployment.yaml`) grant read access to `
 
 ## End-to-End Test
 
+build helm package
+
+```
+cd test/charts/publish
+helm package ../my-app
+helm repo index --url https://eumel8.github.io/rollback-controller/test/charts/publish .
+```
+
 The `test/broken-kustomization.yaml` fixture creates a `GitRepository` and a `Kustomization` pointing to an invalid path, which causes Flux to set `Ready=False`.
 
 ```bash
